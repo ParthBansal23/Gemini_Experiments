@@ -1,0 +1,8 @@
+*.pdf
+.env
+*.mp3
+*.mp4
+a11.txt
+*.ipynb
+*.png
+venv/
