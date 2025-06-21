@@ -457,6 +457,48 @@ def get_text_embeddings():
     else:
         print("No embeddings returned.")
 
+# Example: Function Calling
+def function_calling_example():
+    print("\n--- Function Calling Example ---")
+    get_destination = types.FunctionDeclaration(
+        name="get_destination",
+        description="Get the destination that the user wants to go to",
+        parameters={
+            "type": "OBJECT",
+            "properties": {
+                "destination": {
+                    "type": "STRING",
+                    "description": "Destination that the user wants to go to",
+                },
+            },
+        },
+    )
+
+    destination_tool = types.Tool(
+        function_declarations=[get_destination],
+    )
+
+    response = client.models.generate_content(
+        model=MODEL_ID,
+        contents="I'd like to travel to Paris.",
+        config=types.GenerateContentConfig(
+            tools=[destination_tool],
+            temperature=0,
+            ),
+    )
+
+    if response.candidates and \
+       len(response.candidates) > 0 and \
+       response.candidates[0].content and \
+       len(response.candidates[0].content.parts) > 0 and \
+       hasattr(response.candidates[0].content.parts[0], 'function_call'):
+        
+        function_call = response.candidates[0].content.parts[0].function_call
+        print("\nFunction call details (response.candidates[0].content.parts[0].function_call):")
+        print(function_call)
+    else:
+        print("Could not extract function call from the response or function_call attribute is missing.")
+
 # Main function
 def main():
     basic_text_generation()
@@ -495,6 +537,7 @@ def main():
     url_context_example()
     context_caching_example()
     get_text_embeddings()
+    function_calling_example()
 
 if __name__ == "__main__":
     main()
